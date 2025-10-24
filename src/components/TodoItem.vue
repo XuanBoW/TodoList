@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, nextTick, computed } from 'vue'
 import { useTodoStore } from '@/stores/todoStore'
-
+import { Delete } from '@element-plus/icons-vue'
 // 定义接收的 prop
 const props = defineProps<{
   todo: {
@@ -98,7 +98,12 @@ const tagType = computed(() => {
     @dragleave="handleDragLeave"
     @drop="handleDrop($event)"
   >
-    <el-checkbox :model-value="todo.done" @change="() => store.toggleDone(todo.id)" />
+    <el-checkbox
+      :model-value="todo.done"
+      @change="() => store.toggleDone(todo.id)"
+      size="large"
+      class="todo-checkbox"
+    />
     <!-- 编辑模式 -->
     <template v-if="isEditing">
       <el-input
@@ -108,22 +113,23 @@ const tagType = computed(() => {
         @keyup.enter="saveEdit"
         @keyup.escape="isEditing = false"
         size="small"
-        style="flex: 1"
+        class="edit-input"
       />
     </template>
-    <span v-else @dblclick="startEdit">
-      {{ todo.text }}
-      <el-tag size="small" :type="tagType" style="margin-left: 8px">
+    <div v-else class="todo-content" @dblclick="startEdit">
+      <span class="todo-text">{{ todo.text }}</span>
+      <el-tag size="small" :type="tagType" class="todo-tag">
         {{ tagLabel }}
       </el-tag>
-    </span>
+    </div>
     <el-button
       size="small"
       type="danger"
       @click="store.removeTodo(todo.id)"
-      style="margin-left: auto"
+      class="delete-button"
+      circle
     >
-      删除
+      <el-icon><Delete /></el-icon>
     </el-button>
   </li>
 </template>
@@ -135,33 +141,109 @@ const tagType = computed(() => {
   border-radius: 4px;
   font-size: 1em;
 }
+
+.edit-input :deep(.el-input__inner) {
+  background-color: var(--item-bg);
+  color: var(--text-color);
+}
+
 .todo-item {
   display: flex;
   align-items: center;
-  padding: 12px 0;
+  padding: 16px 12px;
   border-bottom: 1px solid var(--border-color);
-  gap: 10px;
+  gap: 12px;
   background-color: var(--item-bg);
-  transition: background-color 0.3s;
-  transition: transform 0.2s ease;
+  transition: all 0.3s ease;
+  position: relative;
 }
+
+.todo-item:hover {
+  background-color: var(--hover-bg);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dark .todo-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
 .todo-item:active {
   opacity: 0.8;
-  transform: scale(1.02);
-  z-index: 10;
+  transform: scale(0.98);
 }
+
 .todo-item.drag-over {
   border-top: 2px solid #626aef;
+  box-shadow: inset 0 2px 4px rgba(98, 106, 239, 0.2);
 }
+
 .todo-item.dragging {
-  opacity: 0.5;
-  transform: rotate(20deg);
+  opacity: 0.6;
+  transform: rotate(5deg);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
-.todo-item:hover {
-  background-color: var(--border-color);
+
+.dark .todo-item.dragging {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
-.todo-item.done span {
+
+.todo-checkbox {
+  margin-right: 8px;
+}
+
+.todo-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.todo-text {
+  flex: 1;
+  word-break: break-word;
+  color: var(--text-color);
+}
+
+.todo-tag {
+  flex-shrink: 0;
+}
+
+.delete-button {
+  margin-left: auto;
+  transition: all 0.2s;
+  opacity: 0.7;
+}
+
+.todo-item:hover .delete-button {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.todo-item.done .todo-text {
   text-decoration: line-through;
   color: #999;
+}
+
+.dark .todo-item.done .todo-text {
+  color: #888;
+}
+
+/* 动画效果 */
+.todo-item.fade-enter-active,
+.todo-item.fade-leave-active {
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.todo-item.fade-enter-from {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+.todo-item.fade-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
 }
 </style>
