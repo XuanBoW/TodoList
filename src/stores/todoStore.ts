@@ -55,7 +55,19 @@ export const useTodoStore = defineStore('todo', () => {
     }
     saveToStorage()
   }
+  // 👇 添加 moveTodo 方法
+  const moveTodo = (fromIndex: number, toIndex: number) => {
+    if (fromIndex === toIndex) return
 
+    // 1. 取出要移动的项
+    const movedItem = todos.value.splice(fromIndex, 1)[0]
+    if (!movedItem) return
+    // 2. 插入到新位置
+    todos.value.splice(toIndex, 0, movedItem)
+
+    // 3. 持久化
+    saveToStorage()
+  }
   // 计算属性：已完成数量
   const doneCount = computed(() => todos.value.filter(todo => todo.done).length)
 
@@ -63,6 +75,6 @@ export const useTodoStore = defineStore('todo', () => {
   const totalCount = computed(() => todos.value.length)
 
   // 暴露出去，供组件使用
-  return { todos, addTodo, removeTodo, toggleDone, updateTodoText, doneCount, totalCount }
+  return { todos, addTodo, removeTodo, toggleDone, updateTodoText, moveTodo, doneCount, totalCount }
 
 })
